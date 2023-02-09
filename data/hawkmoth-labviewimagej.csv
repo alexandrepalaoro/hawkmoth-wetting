@@ -1,0 +1,17 @@
+﻿species;type;avg;sd
+Manduca_sexta;labview;59.41418115;6.916089883
+Manduca_rustica;labview;51.27816667;8.841471211
+Hemaris_thysbe;labview;75.24883333;9.734134823
+Enyo_lugubris;labview;68.53944444;5.259241226
+Hyles_lineata;labview;84.24880952;5.596362106
+Eumorpha_pandorus;labview;62.6;7.706453027
+Dolba_hyloeus;labview;56.61962963;3.899893913
+Paratrea_plebeja;labview;51.95013095;9.472235224
+Manduca_sexta;imagej;51.7809801;8.94025165
+Manduca_rustica;imagej;50;3.588401404
+Hemaris_thysbe;imagej;60.15;1.63088617
+Enyo_lugubris;imagej;57.075;2.836604746
+Hyles_lineata;imagej;76.28958333;6.875433791
+Eumorpha_pandorus;imagej;58.25833333;4.408837549
+Dolba_hyloeus;imagej;50.19768519;4.090560999
+Paratrea_plebeja;imagej;47.5875;1.987663378
