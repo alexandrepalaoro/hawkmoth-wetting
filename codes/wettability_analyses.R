@@ -137,7 +137,7 @@ plot(avg.ca ~ prob.wing, data = wet, cex = 2, bty = 'l', las = 1,
 abline(m1.BM, lwd = 5, lty = 2, col = alpha('black',0.7))
 
 arrows(x0=wet$prob.wing, x1=wet$prob.wing,
-       y0=wet$avg.ca-wet$sd.ca, y1=wet$avg.ca+wet$sd.ca, 
+       y0=wet$avg.ca-wet$sd.ca.fixed, y1=wet$avg.ca+wet$sd.ca.fixed, 
        code=3, angle=90, length=0.1, lwd = 2)
 
 points( x = wet$prob.wing, y = wet$avg.ca, cex = 2.5,
@@ -189,43 +189,82 @@ summary(m3.d)
 AIC(m3.BM)
 AIC(m3.L)
 AIC(m3.K)
-AIC(m3.d)
+AIC(m3.d) - AIC(m3.BM)
 
 ##### BM IS BEST, BOOTSTRAPPING ####
 
 m3.BM = phylolm(curv.food ~ avg.ca , data = wet, phy = pruned2, model = "BM", measurement_error = T, boot = 10000)
 summary(m3.BM)
 
-### FIGURE ####
+#### ANALYSES OF TAPERING ANGLE ####
 
-pdf("figures/curv-food-graphs.pdf",w=14,h=5)
-par(mfrow = c(1,3), las = 1, bty = 'l')
+m4.BM = phylolm(tapering.angle ~ avg.ca , data = wet, phy = pruned2, model = "BM", measurement_error = T)
+summary(m4.BM)
 
-plot(radius.curv ~ radius.food, data = wet, bty = 'l', las = 1, cex = 2.5,
+m4.L = phylolm(tapering.angle ~ avg.ca , data = wet, phy = pruned2, model = "lambda", lower.bound = 1e-10, upper.bound = 1)
+summary(m4.L)
+
+m4.K = phylolm(tapering.angle ~ avg.ca , data = wet, phy = pruned2, model = "kappa", measurement_error = T)
+summary(m4.K)
+
+m4.d = phylolm(tapering.angle ~ avg.ca , data = wet, phy = pruned2, model = "delta", upper.bound = 180, measurement_error =  T)
+summary(m4.d)
+
+
+AIC(m4.BM)
+AIC(m4.L)
+AIC(m4.K)
+AIC(m4.d)
+
+##### BM IS BEST, BOOTSTRAPPING ####
+
+m4.BM = phylolm(tapering.angle ~ avg.ca , data = wet, phy = pruned2, model = "BM", measurement_error = T, boot = 10000)
+summary(m4.BM)
+
+
+### FIGURES ####
+
+pdf("figures/curv-food-graphs.pdf",w=16,h=5)
+par(mfrow = c(1,3), las = 1, bty = 'l',mar=c(4,5,4,1))
+
+## Creating two columns just to plot the labels a little bit to the side.
+## Just a manual trick I found that works.
+## I'm also getting the mean for the ratio of radii of curvature for one 
+## of the subfamilies
+
+wet$plot.ca = wet$avg.ca+0.5
+wet$radius.plot = wet$radius.galea+0.0025
+macrog = wet[wet$group == "Macroglossinae",]
+mean.macro = mean(macrog$curv.food)
+
+plot(radius.galea ~ radius.food, data = wet, bty = 'l', las = 1, cex = 3,
      pch = 21, bg = c("grey","orange")[as.numeric(as.factor(wet$group))],
-     ylab = "Radius of curvature of the galea",
-     xlab = "Radius of curvature of the food canal",
-     ylim = c(0,0.14), xlim = c(0,0.14))
-abline(0,1,lwd = 2, lty = 2)
+     ylab = "Radius of curvature of the galea (mm)",
+     xlab = "Radius of curvature of the food canal (mm)",
+     ylim = c(0,0.16), xlim = c(0,0.16), cex.axis = 1.2, cex.lab = 1.4)
+abline(0,1,lwd = 3, lty = 2)
 
-text(radius.curv ~ radius.food, data = wet, labels = lab, font = 2, pos = 3, cex = 0.9)
+text(radius.plot ~ radius.food, data = wet, labels = lab, font = 2, pos = 4, cex = 1)
 
-legend("topleft",legend="(A)",bty='n',cex=1.2)
-
-plot(curv.food ~ avg.ca, data = wet, cex = 2.5, bty = 'l', las = 1,
+plot(curv.food ~ avg.ca, data = wet, cex = 2.33, bty = 'l', las = 1,
      pch = 21, bg = c("grey","orange")[as.numeric(as.factor(wet$group))],
      ylab = "Ratio of radii of curvature (outer/inner)",
-     xlab = "Average contact angle (degrees)")
+     xlab = "Average contact angle (degrees)", cex.axis = 1.2, cex.lab = 1.2)
 
-text(curv.food ~ avg.ca, data = wet, labels = lab, font = 2, pos = 4.5, cex = 0.9)
+segments(x0 = 50, x1 = 80, y0 = mean.macro, lty = 2, lwd = 3, col = "black")
+points(x = wet$avg.ca, wet$curv.food, cex = 3, pch = 21,
+       bg = c("grey","orange")[as.numeric(as.factor(wet$group))])
 
-legend("topright",legend="(B)",bty='n',cex=1.2)
+text(curv.food ~ plot.ca, data = wet, labels = lab, font = 2, pos = 3, cex = 1)
 
-curv.food = setNames(wet$curv.food, rownames(wet))
 
-phenogram(pruned2,curv.food,colors=cols, ftype = 'i',
-          ylab = "Ratio of radii of curvature (outer/inner)", xlab = "Time since root (my)")
+plot(tapering.angle ~ avg.ca, data = wet, cex = 3, bty = 'l', las = 1,
+     pch = 21, bg = c("grey","orange")[as.numeric(as.factor(wet$group))],
+     ylab = "Tapering angle (degrees)",
+     xlab = "Average contact angle (degrees)", cex.axis = 1.2, cex.lab = 1.2)
 
-legend("topleft",legend="(C)",bty='n',cex=1.2)
+text(tapering.angle ~ plot.ca, data = wet, labels = lab, font = 2, pos = 4, cex = 1)
+
 
 dev.off()
+
